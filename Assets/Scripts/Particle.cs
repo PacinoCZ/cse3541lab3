@@ -35,5 +35,31 @@ public class Particle : MonoBehaviour {
 	{
 		return this.Velocity + this.acceleration * deltaTime;
 	}
+	
+	private void CollisionDetection(){
+		
+		Matrix4x4 localToWorld = transform.localToWorldMatrix;
+		Vector3[] local_vertices = Apperance.GetComponent<MeshFilter>().mesh.vertices;
+		Vector3[] world_vertices = new Vector3[local_vertices.Length];
+		for (int i = 0; i < local_vertices.Length; i++) {
+			world_vertices [i] = localToWorld.MultiplyPoint3x4(local_vertices[i]);
+		}
+
+		float sum_x = 0f, sum_y = 0f, sum_z = 0f;
+		for (int i = 0; i < local_vertices.Length; i++) {
+			sum_x += world_vertices [i].x;
+			sum_y += world_vertices [i].y;
+			sum_z += world_vertices [i].z;
+		}
+
+		Vector3 center = new Vector3 (sum_x / world_vertices.Length, sum_y / world_vertices.Length, sum_z / world_vertices.Length);
+		float radius = 0f;
+		for (int i = 0; i < world_vertices.Length; i++) {
+			float distance = Mathf.Pow ((world_vertices [i].x - center.x), 2) + Mathf.Pow ((world_vertices [i].y - center.y), 2) + Mathf.Pow ((world_vertices [i].z - center.z), 2);
+			if (distance > radius)
+				radius = distance;
+		}
+
+	}
 
 }
